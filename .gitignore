@@ -1,0 +1,54 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Trained model artifacts (large binaries -- do not commit checkpoints/exports;
+# distribute a demo checkpoint via GitHub Releases instead, see README)
+models/
+*.pt
+*.onnx
+*.ts
+
+# Generated datasets (large synthetic files; regenerate with `ncg dataset`).
+# holdout.txt is kept: it's small (~100 lines) and is the canonical
+# reference eval set used in the README's Quick Start.
+data/*.txt
+data/*.jsonl
+!data/holdout.txt
+
+# Test / lint / type-check caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Hardware simulation build output
+hardware/obj_dir/
+hardware/**/*.vcd
+hardware/**/*.fst
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Local tooling state (not part of the shipped project)
+.opencode/
+
+# Environment / secrets
+.env
+.env.local
+config.local.yaml
