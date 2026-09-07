@@ -24,6 +24,13 @@ from model import DCPMGenerator, PasswordTokenizer
 from model.data import BreachContext
 from ncg.config import ModelConfig, InferenceConfig
 
+# This whole file crosses the model/hardware-sim boundary (train a model,
+# generate candidates, hash and verify them through the hardware reference
+# pipeline) -- that's what CI's "integration-tests" job selects via
+# `pytest -m integration`. Without this marker, that job selected 0 tests
+# and failed with exit code 5 (no tests collected) on every run.
+pytestmark = pytest.mark.integration
+
 
 class TestModelToHashPipeline:
     """Test that model-generated candidates can be hashed and verified."""
