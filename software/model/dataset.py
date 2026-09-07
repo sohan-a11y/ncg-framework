@@ -16,12 +16,47 @@ logger = logging.getLogger(__name__)
 
 # Common password bases (top patterns from RockYou analyses)
 COMMON_BASES = [
-    "password", "123456", "12345678", "qwerty", "abc123", "monkey", "letmein",
-    "dragon", "111111", "baseball", "iloveyou", "trustno1", "sunshine",
-    "master", "welcome", "shadow", "ashley", "football", "michael", "ninja",
-    "mustang", "password1", "admin", "root", "guest", "test", "user",
-    "login", "pass", "secret", "qazwsx", "killer", "superman", "hunter",
-    "soccer", "batman", "whatever", "access", "love", "hello", "freedom",
+    "password",
+    "123456",
+    "12345678",
+    "qwerty",
+    "abc123",
+    "monkey",
+    "letmein",
+    "dragon",
+    "111111",
+    "baseball",
+    "iloveyou",
+    "trustno1",
+    "sunshine",
+    "master",
+    "welcome",
+    "shadow",
+    "ashley",
+    "football",
+    "michael",
+    "ninja",
+    "mustang",
+    "password1",
+    "admin",
+    "root",
+    "guest",
+    "test",
+    "user",
+    "login",
+    "pass",
+    "secret",
+    "qazwsx",
+    "killer",
+    "superman",
+    "hunter",
+    "soccer",
+    "batman",
+    "whatever",
+    "access",
+    "love",
+    "hello",
+    "freedom",
 ]
 
 # Common appendages: years, digits, specials
@@ -34,24 +69,83 @@ LEET_MAP = {"a": "4", "e": "3", "i": "1", "o": "0", "s": "5", "t": "7", "l": "1"
 
 # Keyboard walks
 KEYBOARD_WALKS = [
-    "qwerty", "asdfgh", "zxcvbn", "qazwsx", "1qaz2wsx", "qwertyuiop",
-    "asdfghjkl", "zxcvbnm", "1q2w3e4r", "qwaszx", "poiuyt", "lkjhgf",
-    "azeazy", "qwertz", "1234qwer", "147258369", "159753", "741852963",
+    "qwerty",
+    "asdfgh",
+    "zxcvbn",
+    "qazwsx",
+    "1qaz2wsx",
+    "qwertyuiop",
+    "asdfghjkl",
+    "zxcvbnm",
+    "1q2w3e4r",
+    "qwaszx",
+    "poiuyt",
+    "lkjhgf",
+    "azeazy",
+    "qwertz",
+    "1234qwer",
+    "147258369",
+    "159753",
+    "741852963",
 ]
 
 # Organization name components for contextual passwords
 ORG_TEMPLATES = [
-    "{org}", "{org}123", "{org}2024", "{org}2025", "{org}2026", "{org}!",
-    "{Org}", "{ORG}", "{org}admin", "admin{org}", "{org}pass", "{org}pw",
-    "{org}#1", "{org}rocks", "{org}01", "{org}123!", "Ilove{org}", "{org}4ever",
-    "{org}@2026", "{org}security", "{org}login", "{org}mypass", "{org}2026!",
+    "{org}",
+    "{org}123",
+    "{org}2024",
+    "{org}2025",
+    "{org}2026",
+    "{org}!",
+    "{Org}",
+    "{ORG}",
+    "{org}admin",
+    "admin{org}",
+    "{org}pass",
+    "{org}pw",
+    "{org}#1",
+    "{org}rocks",
+    "{org}01",
+    "{org}123!",
+    "Ilove{org}",
+    "{org}4ever",
+    "{org}@2026",
+    "{org}security",
+    "{org}login",
+    "{org}mypass",
+    "{org}2026!",
 ]
 
 # Word combinations
 WORDS = [
-    "love", "cool", "fast", "big", "the", "my", "hot", "new", "top", "pro",
-    "super", "mega", "ultra", "cyber", "tech", "data", "code", "net", "web",
-    "info", "sys", "dev", "ops", "cloud", "dark", "zero", "one", "prime",
+    "love",
+    "cool",
+    "fast",
+    "big",
+    "the",
+    "my",
+    "hot",
+    "new",
+    "top",
+    "pro",
+    "super",
+    "mega",
+    "ultra",
+    "cyber",
+    "tech",
+    "data",
+    "code",
+    "net",
+    "web",
+    "info",
+    "sys",
+    "dev",
+    "ops",
+    "cloud",
+    "dark",
+    "zero",
+    "one",
+    "prime",
 ]
 
 
@@ -201,7 +295,9 @@ def generate_multi_org_dataset(
 def save_dataset_jsonl(passwords: list[str], metadata: list[dict], path: str | Path) -> None:
     """Save a (password, metadata) dataset as JSON Lines, one {"password", "metadata"} per line."""
     if len(passwords) != len(metadata):
-        raise ValueError(f"passwords ({len(passwords)}) and metadata ({len(metadata)}) length mismatch")
+        raise ValueError(
+            f"passwords ({len(passwords)}) and metadata ({len(metadata)}) length mismatch"
+        )
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:

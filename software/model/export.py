@@ -16,13 +16,15 @@ logger = logging.getLogger(__name__)
 
 def _get_max_seq_len(model: torch.nn.Module) -> int:
     """Extract max_seq_len from model config."""
-    max_seq_len = getattr(getattr(model, 'config', None), 'max_seq_len', None)
+    max_seq_len = getattr(getattr(model, "config", None), "max_seq_len", None)
     if max_seq_len is None:
-        max_seq_len = getattr(model, 'max_seq_len', 64)
+        max_seq_len = getattr(model, "max_seq_len", 64)
     return max_seq_len  # type: ignore[return-value]
 
 
-def _create_dummy_inputs(model: torch.nn.Module, input_shape: tuple[int, int] | None = None) -> tuple[torch.Tensor, torch.Tensor]:
+def _create_dummy_inputs(
+    model: torch.nn.Module, input_shape: tuple[int, int] | None = None
+) -> tuple[torch.Tensor, torch.Tensor]:
     """Create dummy inputs for model export."""
     max_seq_len = _get_max_seq_len(model)
     if input_shape is None:
@@ -40,7 +42,9 @@ class _OnnxWrapper(torch.nn.Module):
         super().__init__()
         self.inner = model
 
-    def forward(self, input_ids: torch.Tensor, attention_mask: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+    def forward(
+        self, input_ids: torch.Tensor, attention_mask: torch.Tensor
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         out = self.inner(input_ids, attention_mask=attention_mask)
         return out["logits"], out["hidden_states"]
 
@@ -136,19 +140,24 @@ def export_tokenizer(
 
     # Also save vocab mapping for reference
     from .tokenizer import ID_TO_CHAR
+
     vocab_file = output_dir / "vocab.json"
     with open(vocab_file, "w") as f:
-        json.dump({
-            "char_to_id": {ch: i for i, ch in ID_TO_CHAR.items() if i >= 4},
-            "special_tokens": {
-                "pad": tokenizer.pad_token_id,
-                "bos": tokenizer.bos_token_id,
-                "eos": tokenizer.eos_token_id,
-                "unk": tokenizer.unk_token_id,
+        json.dump(
+            {
+                "char_to_id": {ch: i for i, ch in ID_TO_CHAR.items() if i >= 4},
+                "special_tokens": {
+                    "pad": tokenizer.pad_token_id,
+                    "bos": tokenizer.bos_token_id,
+                    "eos": tokenizer.eos_token_id,
+                    "unk": tokenizer.unk_token_id,
+                },
+                "max_seq_len": tokenizer.max_seq_len,
+                "vocab_size": tokenizer.vocab_size,
             },
-            "max_seq_len": tokenizer.max_seq_len,
-            "vocab_size": tokenizer.vocab_size,
-        }, f, indent=2)
+            f,
+            indent=2,
+        )
 
     logger.info("Tokenizer exported to: %s", output_dir)
 
@@ -214,14 +223,18 @@ def export_for_deployment(
     # Save model config
     config_path = output_dir / "model_config.json"
     with open(config_path, "w") as f:
-        json.dump({
-            "d_model": model.d_model,
-            "n_heads": model.config.n_heads,
-            "n_layers": model.config.n_layers,
-            "vocab_size": model.vocab_size,
-            "max_seq_len": model.max_seq_len,
-            "quantization": quantization,
-        }, f, indent=2)
+        json.dump(
+            {
+                "d_model": model.d_model,
+                "n_heads": model.config.n_heads,
+                "n_layers": model.config.n_layers,
+                "vocab_size": model.vocab_size,
+                "max_seq_len": model.max_seq_len,
+                "quantization": quantization,
+            },
+            f,
+            indent=2,
+        )
     exported_files["config"] = str(config_path)
 
     logger.info("Deployment export completed to: %s", output_dir)

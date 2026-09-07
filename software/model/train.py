@@ -121,7 +121,7 @@ class NCGTrainer:
                 F.log_softmax(logits_flat / 2.0, dim=-1),
                 F.softmax(teacher_logits.view(-1, teacher_logits.size(-1)) / 2.0, dim=-1),
                 reduction="batchmean",
-            ) * (2.0 ** 2)
+            ) * (2.0**2)
             loss = 0.5 * loss + 0.5 * distill_loss
 
         return loss
@@ -184,7 +184,9 @@ class NCGTrainer:
 
             with autocast(enabled=self.mixed_precision):
                 outputs = self.model(
-                    input_ids, attention_mask=attention_mask, metadata_embeddings=metadata_embeddings
+                    input_ids,
+                    attention_mask=attention_mask,
+                    metadata_embeddings=metadata_embeddings,
                 )
                 loss = self.compute_loss(outputs["logits"], target_ids, attention_mask)
 
@@ -330,7 +332,9 @@ def train(
                 # Save best model
                 if val_metrics["val_loss"] < trainer.best_val_loss:
                     trainer.best_val_loss = val_metrics["val_loss"]
-                    trainer.save_checkpoint(output_dir / f"checkpoint_step_{trainer.global_step}.pt", is_best=True)
+                    trainer.save_checkpoint(
+                        output_dir / f"checkpoint_step_{trainer.global_step}.pt", is_best=True
+                    )
 
             # Regular checkpoint
             if trainer.global_step % save_interval == 0:

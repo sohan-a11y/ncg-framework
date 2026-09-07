@@ -244,8 +244,24 @@ def create_data_loaders(
 
 def generate_synthetic_metadata(num_samples: int = 1000) -> list[dict[str, Any]]:
     """Generate synthetic breach metadata for training."""
-    orgs = ["TechCorp", "FinanceInc", "HealthNet", "EduSystems", "GovAgency", "RetailCo", "MediaGroup"]
-    industries = ["technology", "finance", "healthcare", "education", "government", "retail", "media"]
+    orgs = [
+        "TechCorp",
+        "FinanceInc",
+        "HealthNet",
+        "EduSystems",
+        "GovAgency",
+        "RetailCo",
+        "MediaGroup",
+    ]
+    industries = [
+        "technology",
+        "finance",
+        "healthcare",
+        "education",
+        "government",
+        "retail",
+        "media",
+    ]
     locations = ["US", "EU", "UK", "CA", "AU", "JP", "BR"]
     base_leaks = [
         ["admin", "password", "123456"],
@@ -257,12 +273,14 @@ def generate_synthetic_metadata(num_samples: int = 1000) -> list[dict[str, Any]]
     metadata = []
     for _ in range(num_samples):
         org = random.choice(orgs)
-        metadata.append({
-            "organization": org,
-            "year": random.randint(2020, 2026),
-            "industry": random.choice(industries),
-            "location": random.choice(locations),
-            "known_leaks": random.choice(base_leaks),
-            "employee_count": random.randint(100, 10000),
-        })
+        metadata.append(
+            {
+                "organization": org,
+                "year": random.randint(2020, 2026),
+                "industry": random.choice(industries),
+                "location": random.choice(locations),
+                "known_leaks": random.choice(base_leaks),
+                "employee_count": random.randint(100, 10000),
+            }
+        )
     return metadata

@@ -70,8 +70,18 @@ def version(ctx: click.Context) -> None:
 
 
 @cli.command()
-@click.option("--num", "-n", type=int, default=10000, help="Number of passwords to generate (per org, if --orgs given)")
-@click.option("--org", default="TechCorp", help="Organization for contextual patterns (ignored if --orgs given)")
+@click.option(
+    "--num",
+    "-n",
+    type=int,
+    default=10000,
+    help="Number of passwords to generate (per org, if --orgs given)",
+)
+@click.option(
+    "--org",
+    default="TechCorp",
+    help="Organization for contextual patterns (ignored if --orgs given)",
+)
 @click.option(
     "--orgs",
     default=None,
@@ -95,7 +105,9 @@ def dataset(num: int, org: str, orgs: str | None, output: str, seed: int) -> Non
 
     if orgs:
         org_list = [o.strip() for o in orgs.split(",") if o.strip()]
-        with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), console=console) as progress:
+        with Progress(
+            SpinnerColumn(), TextColumn("[progress.description]{task.description}"), console=console
+        ) as progress:
             progress.add_task(f"Generating {num} passwords x {len(org_list)} orgs...", total=None)
             passwords, metadata = generate_multi_org_dataset(num, org_list, seed)
 
@@ -103,13 +115,17 @@ def dataset(num: int, org: str, orgs: str | None, output: str, seed: int) -> Non
         if out_path.suffix != ".jsonl":
             out_path = out_path.with_suffix(".jsonl")
         save_dataset_jsonl(passwords, metadata, out_path)
-        console.print(f"[green]Generated {len(passwords)} contextual passwords ({len(org_list)} orgs) -> {out_path}[/green]")
+        console.print(
+            f"[green]Generated {len(passwords)} contextual passwords ({len(org_list)} orgs) -> {out_path}[/green]"
+        )
         console.print("\n[bold]Sample:[/bold]")
         for pwd, meta in list(zip(passwords, metadata, strict=True))[:10]:
             console.print(f"  {pwd}  [dim]({meta['organization']})[/dim]")
         return
 
-    with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), console=console) as progress:
+    with Progress(
+        SpinnerColumn(), TextColumn("[progress.description]{task.description}"), console=console
+    ) as progress:
         progress.add_task(f"Generating {num} passwords...", total=None)
         passwords = generate_dataset(num, org, seed)
 
@@ -128,7 +144,11 @@ def model() -> None:
 
 @model.command("train")
 @click.option(
-    "--data", "-d", type=click.Path(exists=True), required=True, help="Training data path (text file, one password per line)"
+    "--data",
+    "-d",
+    type=click.Path(exists=True),
+    required=True,
+    help="Training data path (text file, one password per line)",
 )
 @click.option("--output", "-o", type=click.Path(), required=True, help="Output model directory")
 @click.option("--epochs", "-e", type=int, default=None, help="Number of epochs (overrides config)")
@@ -199,7 +219,9 @@ def train_model(
     tokenizer = PasswordTokenizer(max_seq_len=cfg.model.max_seq_len)
     net = create_model(cfg.model)
     param_count = sum(p.numel() for p in net.parameters())
-    console.print(f"[bold]Model:[/bold] {param_count:,} parameters, d_model={cfg.model.d_model}, layers={cfg.model.n_layers}")
+    console.print(
+        f"[bold]Model:[/bold] {param_count:,} parameters, d_model={cfg.model.d_model}, layers={cfg.model.n_layers}"
+    )
     console.print(f"[bold]Device:[/bold] {dev}")
     console.print(
         f"[bold]Training:[/bold] epochs={cfg.training.max_epochs}, batch_size={cfg.training.batch_size}, "
@@ -218,7 +240,9 @@ def train_model(
         train_metadata=metadata,
         metadata_tokenizer=metadata_tokenizer,
     )
-    console.print(f"  Train batches: {len(train_loader)}, Val batches: {len(val_loader) if val_loader else 0}")
+    console.print(
+        f"  Train batches: {len(train_loader)}, Val batches: {len(val_loader) if val_loader else 0}"
+    )
 
     # Adjust warmup if dataset is small
     total_steps = len(train_loader) * cfg.training.max_epochs
@@ -252,14 +276,25 @@ def train_model(
 
 
 @model.command("generate")
-@click.option("--model", "-m", type=click.Path(exists=True), required=True, help="Model checkpoint path (.pt)")
-@click.option("--context", "-c", required=True, help="Target context (JSON, e.g. '{\"organization\": \"TechCorp\"}')")
+@click.option(
+    "--model", "-m", type=click.Path(exists=True), required=True, help="Model checkpoint path (.pt)"
+)
+@click.option(
+    "--context",
+    "-c",
+    required=True,
+    help='Target context (JSON, e.g. \'{"organization": "TechCorp"}\')',
+)
 @click.option(
     "--num-candidates", "-n", type=int, default=100, help="Number of candidates to generate"
 )
 @click.option("--output", "-o", type=click.Path(), help="Output file for candidates (one per line)")
-@click.option("--max-length", type=int, default=None, help="Max candidate length (overrides config)")
-@click.option("--temperature", "-t", type=float, default=None, help="Sampling temperature (overrides config)")
+@click.option(
+    "--max-length", type=int, default=None, help="Max candidate length (overrides config)"
+)
+@click.option(
+    "--temperature", "-t", type=float, default=None, help="Sampling temperature (overrides config)"
+)
 @click.option("--top-k", type=int, default=None, help="Top-k sampling (overrides config)")
 @click.option("--top-p", type=float, default=None, help="Top-p sampling (overrides config)")
 @click.pass_context
@@ -294,7 +329,7 @@ def generate_candidates(
         context_dict = json.loads(context)
     except json.JSONDecodeError as e:
         console.print(f"[red]Invalid context JSON: {e}[/red]")
-        console.print("Example: --context '{\"organization\": \"TechCorp\", \"year\": 2026}'")
+        console.print('Example: --context \'{"organization": "TechCorp", "year": 2026}\'')
         raise SystemExit(1) from e
 
     console.print(f"[bold]Loading model:[/bold] {model}")
@@ -304,7 +339,9 @@ def generate_candidates(
         f"[bold]Sampling:[/bold] temp={cfg.inference.temperature}, top_k={cfg.inference.top_k}, top_p={cfg.inference.top_p}"
     )
 
-    with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), console=console) as progress:
+    with Progress(
+        SpinnerColumn(), TextColumn("[progress.description]{task.description}"), console=console
+    ) as progress:
         progress.add_task(f"Generating {num_candidates} candidates...", total=None)
         candidates = generator.generate_candidates(
             context_dict,
@@ -323,7 +360,9 @@ def generate_candidates(
             seen.add(c)
             unique_candidates.append(c)
 
-    console.print(f"\n[green]Generated {len(candidates)} candidates ({len(unique_candidates)} unique)[/green]")
+    console.print(
+        f"\n[green]Generated {len(candidates)} candidates ({len(unique_candidates)} unique)[/green]"
+    )
     console.print("\n[bold]Top candidates:[/bold]")
     for i, cand in enumerate(unique_candidates[:20]):
         console.print(f"  {i + 1:3d}. {cand}")
@@ -333,12 +372,22 @@ def generate_candidates(
         out_path.parent.mkdir(parents=True, exist_ok=True)
         with open(out_path, "w", encoding="utf-8") as f:
             f.write("\n".join(unique_candidates))
-        console.print(f"\n[green]Saved {len(unique_candidates)} unique candidates -> {output}[/green]")
+        console.print(
+            f"\n[green]Saved {len(unique_candidates)} unique candidates -> {output}[/green]"
+        )
 
 
 @model.command("evaluate")
-@click.option("--model", "-m", type=click.Path(exists=True), required=True, help="Model checkpoint path")
-@click.option("--test-data", "-d", type=click.Path(exists=True), required=True, help="Holdout passwords (one per line)")
+@click.option(
+    "--model", "-m", type=click.Path(exists=True), required=True, help="Model checkpoint path"
+)
+@click.option(
+    "--test-data",
+    "-d",
+    type=click.Path(exists=True),
+    required=True,
+    help="Holdout passwords (one per line)",
+)
 @click.option("--num-candidates", "-n", type=int, default=1000, help="Candidates per evaluation")
 @click.pass_context
 def evaluate_model(ctx: click.Context, model: str, test_data: str, num_candidates: int) -> None:
@@ -367,7 +416,9 @@ def evaluate_model(ctx: click.Context, model: str, test_data: str, num_candidate
 
 
 @model.command("export")
-@click.option("--model", "-m", type=click.Path(exists=True), required=True, help="Model checkpoint path")
+@click.option(
+    "--model", "-m", type=click.Path(exists=True), required=True, help="Model checkpoint path"
+)
 @click.option(
     "--format",
     "-f",
@@ -400,7 +451,9 @@ def export_model(ctx: click.Context, model: str, format: str, output: str) -> No
             console.print(f"[green]ONNX export complete: {out_path}[/green]")
         except Exception as e:
             console.print(f"[red]ONNX export failed: {e}[/red]")
-            console.print("[yellow]Hint: ONNX export requires fixed shapes; use torchscript for now.[/yellow]")
+            console.print(
+                "[yellow]Hint: ONNX export requires fixed shapes; use torchscript for now.[/yellow]"
+            )
             raise SystemExit(1) from e
 
 
@@ -483,7 +536,9 @@ def synthesize(ctx: click.Context, design: str, device: str, output: str) -> Non
         console.print("[red]Vivado not found in PATH.[/red]")
         console.print("Synthesis requires Vivado 2022.2+ and a licensed installation.")
         console.print("\nTo run synthesis manually:")
-        console.print(f"  vivado -mode batch -source hardware/synth/tcl/create_project.tcl -tclargs {device.split('_')[1]}")
+        console.print(
+            f"  vivado -mode batch -source hardware/synth/tcl/create_project.tcl -tclargs {device.split('_')[1]}"
+        )
         console.print("  # then: launch_runs impl_1 -to_step write_bitstream")
         raise SystemExit(1)
 
@@ -511,21 +566,29 @@ def doctor(ctx: click.Context, generate_dataset: bool) -> None:
     table.add_row("PyTorch", torch.__version__)
     table.add_row("CUDA", "Available" if torch.cuda.is_available() else "Not available (CPU mode)")
 
-    for tool, desc in [("verilator", "RTL simulation"), ("vivado", "FPGA synthesis"), ("xbutil", "XRT deployment")]:
+    for tool, desc in [
+        ("verilator", "RTL simulation"),
+        ("vivado", "FPGA synthesis"),
+        ("xbutil", "XRT deployment"),
+    ]:
         found = shutil.which(tool) is not None
         table.add_row(tool, f"{desc} - {'Found' if found else 'Not installed'}")
 
     console.print(table)
 
     # Check for trained model
-    model_paths = list(Path(".").glob("**/best_model.pt")) + list(Path(".").glob("**/final_model.pt"))
+    model_paths = list(Path(".").glob("**/best_model.pt")) + list(
+        Path(".").glob("**/final_model.pt")
+    )
     if model_paths:
         console.print(f"\n[green]Trained model found:[/green] {model_paths[0]}")
     else:
         console.print("\n[yellow]No trained model found. Next steps:[/yellow]")
         console.print("  1. ncg dataset -n 10000 -o data/passwords.txt")
         console.print("  2. ncg model train -d data/passwords.txt -o models/ncg -e 5")
-        console.print("  3. ncg model generate -m models/ncg/best_model.pt -c '{\"organization\": \"TechCorp\"}'")
+        console.print(
+            '  3. ncg model generate -m models/ncg/best_model.pt -c \'{"organization": "TechCorp"}\''
+        )
 
 
 if __name__ == "__main__":

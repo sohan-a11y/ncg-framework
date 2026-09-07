@@ -140,7 +140,11 @@ class QuantizedMultiheadAttention(nn.Module):
         batch_size, seq_len, _ = query.shape
 
         # Project
-        q = self.q_proj(query).view(batch_size, seq_len, self.n_heads, self.head_dim).transpose(1, 2)
+        q = (
+            self.q_proj(query)
+            .view(batch_size, seq_len, self.n_heads, self.head_dim)
+            .transpose(1, 2)
+        )
         k = self.k_proj(key).view(batch_size, -1, self.n_heads, self.head_dim).transpose(1, 2)
         v = self.v_proj(value).view(batch_size, -1, self.n_heads, self.head_dim).transpose(1, 2)
 
@@ -264,20 +268,24 @@ class NCGTransformer(nn.Module):
         self.pad_token_id = config.pad_token_id
 
         # Embeddings
-        self.token_embedding = nn.Embedding(config.vocab_size, config.d_model, padding_idx=config.pad_token_id)
+        self.token_embedding = nn.Embedding(
+            config.vocab_size, config.d_model, padding_idx=config.pad_token_id
+        )
         self.position_embedding = nn.Embedding(config.max_seq_len, config.d_model)
 
         # Transformer blocks
-        self.blocks = nn.ModuleList([
-            TransformerBlock(
-                config.d_model,
-                config.n_heads,
-                config.d_ff,
-                config.dropout,
-                config.quantization,
-            )
-            for _ in range(config.n_layers)
-        ])
+        self.blocks = nn.ModuleList(
+            [
+                TransformerBlock(
+                    config.d_model,
+                    config.n_heads,
+                    config.d_ff,
+                    config.dropout,
+                    config.quantization,
+                )
+                for _ in range(config.n_layers)
+            ]
+        )
 
         # Metadata (breach-context) encoder: learned conditioning vector from
         # organization/year/known_leaks/etc, added to the sequence in forward().
@@ -313,7 +321,9 @@ class NCGTransformer(nn.Module):
         batch_size, seq_len = input_ids.shape
 
         # Create position IDs
-        position_ids = torch.arange(seq_len, device=input_ids.device).unsqueeze(0).expand(batch_size, -1)
+        position_ids = (
+            torch.arange(seq_len, device=input_ids.device).unsqueeze(0).expand(batch_size, -1)
+        )
 
         # Embeddings
         token_emb = self.token_embedding(input_ids)
@@ -388,7 +398,9 @@ class NCGTransformer(nn.Module):
                     sorted_indices_to_remove = cumsum_probs > top_p
                     sorted_indices_to_remove[:, 1:] = sorted_indices_to_remove[:, :-1].clone()
                     sorted_indices_to_remove[:, 0] = 0
-                    indices_to_remove = sorted_indices_to_remove.scatter(-1, sorted_indices, sorted_indices_to_remove)
+                    indices_to_remove = sorted_indices_to_remove.scatter(
+                        -1, sorted_indices, sorted_indices_to_remove
+                    )
                     logits[indices_to_remove] = float("-inf")
 
                 # Sample next token

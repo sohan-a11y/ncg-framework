@@ -76,7 +76,12 @@ class PasswordTokenizer:
         """Decode token IDs to text."""
         chars = []
         for id_ in ids:
-            if skip_special_tokens and id_ in (self.pad_token_id, self.bos_token_id, self.eos_token_id, self.unk_token_id):
+            if skip_special_tokens and id_ in (
+                self.pad_token_id,
+                self.bos_token_id,
+                self.eos_token_id,
+                self.unk_token_id,
+            ):
                 continue
             chars.append(ID_TO_CHAR.get(id_, "[UNK]"))
         return "".join(chars)

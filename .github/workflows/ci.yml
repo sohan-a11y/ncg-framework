@@ -136,27 +136,6 @@ jobs:
           files: dist/*
           generate_release_notes: true
 
-  docs:
-    name: Build Documentation
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install dependencies
-        run: pip install mkdocs mkdocs-material mkdocstrings[python]
-
-      - name: Build docs
-        run: mkdocs build --strict
-
-      - name: Deploy to GitHub Pages
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./site
+  # A "docs" job (mkdocs build + GitHub Pages deploy) previously lived here but
+  # was removed: there was no mkdocs.yml or docs/ content for it to build, so
+  # it failed on every run. Re-add it once real documentation content exists.

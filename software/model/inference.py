@@ -142,7 +142,9 @@ class DCPMGenerator:
                         sorted_indices_to_remove = cumsum_probs > top_p
                         sorted_indices_to_remove[:, 1:] = sorted_indices_to_remove[:, :-1].clone()
                         sorted_indices_to_remove[:, 0] = 0
-                        indices_to_remove = sorted_indices_to_remove.scatter(-1, sorted_indices, sorted_indices_to_remove)
+                        indices_to_remove = sorted_indices_to_remove.scatter(
+                            -1, sorted_indices, sorted_indices_to_remove
+                        )
                         logits[indices_to_remove] = float("-inf")
 
                     # Sample
@@ -157,7 +159,9 @@ class DCPMGenerator:
 
                 # Decode batch
                 for j in range(curr_batch):
-                    candidate = self.tokenizer.decode(input_ids[j].tolist(), skip_special_tokens=True)
+                    candidate = self.tokenizer.decode(
+                        input_ids[j].tolist(), skip_special_tokens=True
+                    )
                     if candidate:
                         candidates.append(candidate)
 
@@ -183,7 +187,9 @@ class DCPMGenerator:
             prefix_ids = self.tokenizer.encode(prefix, add_special_tokens=True)
             input_ids = torch.tensor([prefix_ids], dtype=torch.long, device=self.device)
         else:
-            input_ids = torch.tensor([[self.tokenizer.bos_token_id]], dtype=torch.long, device=self.device)
+            input_ids = torch.tensor(
+                [[self.tokenizer.bos_token_id]], dtype=torch.long, device=self.device
+            )
 
         self.model.eval()
         with torch.no_grad():
